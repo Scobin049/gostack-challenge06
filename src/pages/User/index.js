@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 
-import { View, ActivityIndicator } from 'react-native';
+import { ActivityIndicator } from 'react-native';
 
 import PropTypes from 'prop-types';
 import api from '../../services/api';
@@ -25,6 +25,7 @@ export default class User extends Component {
   static propTypes = {
     navigation: PropTypes.shape({
       getParam: PropTypes.func,
+      navigate: PropTypes.func,
     }).isRequired,
   };
 
@@ -60,8 +61,14 @@ export default class User extends Component {
   };
 
   refreshList = () => {
-    this.setState({ page: 1, refreshing: true, stars: [] });
+    this.setState({ stars: [], page: 1, refreshing: true });
     this.loadRepositories();
+  };
+
+  handleNavigate = starred => {
+    const { navigation } = this.props;
+
+    navigation.navigate('Repository', { starred });
   };
 
   render() {
@@ -88,7 +95,7 @@ export default class User extends Component {
             data={stars}
             keyExtractor={star => String(star.id)}
             renderItem={({ item }) => (
-              <Starred>
+              <Starred onPress={() => this.handleNavigate(item)}>
                 <OwnerAvatar source={{ uri: item.owner.avatar_url }} />
                 <Info>
                   <Title>{item.name}</Title>

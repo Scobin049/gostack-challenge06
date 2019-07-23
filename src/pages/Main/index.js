@@ -1,9 +1,10 @@
 import React, { Component } from 'react';
-import { Keyboard } from 'react-native';
+import { Keyboard, ActivityIndicator } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import {
   Container,
   Form,
+  Text,
   Input,
   SubmitButton,
   List,
@@ -21,29 +22,40 @@ export default class Main extends Component {
   state = {
     newUser: '',
     users: [],
+    loading: false,
+    textInput: '',
   };
 
   handleAddUser = async () => {
     const { users, newUser } = this.state;
 
-    const response = await api.get(`/users/${newUser}`);
-
-    const { data } = response;
-
-    const user = {
-      name: data.name,
-      login: data.login,
-      bio: data.bio,
-      avatar: data.avatar_url,
-    };
-
-    this.setState({ users: [...users, user], newUser: '' });
-
+    this.setState({ loading: true, textInput: '' });
     Keyboard.dismiss();
+
+    try {
+      const response = await api.get(`/users/${newUser}`);
+
+      const { data } = response;
+      const user = {
+        name: data.name,
+        login: data.login,
+        bio: data.bio,
+        avatar: data.avatar_url,
+      };
+
+      this.setState({ users: [...users, user], newUser: '', loading: false });
+    } catch (error) {
+      this.setState({
+        newUser: '',
+        loading: false,
+        textInput: 'Usuário não encontrado',
+      });
+      console.tron.log(Object.keys(error), error.message);
+    }
   };
 
   render() {
-    const { users, newUser } = this.state;
+    const { users, newUser, loading, textInput } = this.state;
     return (
       <Container>
         <Form>
@@ -57,9 +69,14 @@ export default class Main extends Component {
             onSubmitEditing={this.handleAddUser}
           />
           <SubmitButton onPress={this.handleAddUser}>
-            <Icon name="add" size={20} color="#fff" />
+            {loading ? (
+              <ActivityIndicator size={20} color="#fff" />
+            ) : (
+              <Icon name="add" size={20} color="#fff" />
+            )}
           </SubmitButton>
         </Form>
+        <Text>{textInput}</Text>
 
         <List
           data={users}

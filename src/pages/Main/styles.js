@@ -13,6 +13,11 @@ export const Form = styled.View`
   border-color: #eee;
 `;
 
+export const Text = styled.Text`
+  text-align: center;
+  color: #e74c3c;
+`;
+
 export const Input = styled.TextInput.attrs({
   placeholderTextColor: '#999',
 })`
